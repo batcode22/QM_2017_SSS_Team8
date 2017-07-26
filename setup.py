@@ -2,12 +2,12 @@ import setuptools
 
 if __name__ == "__main__":
     setuptools.setup(
-        name='friendly_computing_machine',
+        name='projects',
         version="0.1.1",
         description='A starting template for Python programs',
-        author='Dakota Folmsbee',
-        author_email='dfolmsbee@gmail.com',
-        url="https://github.com/dlf57/friendly-computing-machine",
+        author='Jun Zhang (leader), Asim Alenaizan, Vibin Abraham and Dakota Folmsbee',
+        author_email='zhangjunqcc@gmail.com, alenaizana@gmail.com, vibin1@vt.edu, dfolmsbee@gmail.com',
+        url="https://github.com/MolSSI-SSS/QM_2017_SSS_Team8",
         license='BSD-3C',
         packages=setuptools.find_packages(),
         install_requires=[
