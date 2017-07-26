@@ -32,7 +32,7 @@ before_script:
  - python -V
 
 script:
- - tests/test.py
+ - tests/test_scf.py
 
 notifications:
  email: false
