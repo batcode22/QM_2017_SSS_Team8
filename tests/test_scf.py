@@ -9,14 +9,17 @@ import pytest
 
 
 def test_scf():
-    mol = psi4.geometry("""
-    O
-    H 1 1.1
-    H 1 1.1 2 104
-    """)
-    basis = projects.scf.basis
     psi4.set_options({"scf_type": "pk"})
-    psi4_basis = "SCF/" + basis
-    psi4_energy = psi4.energy(psi4_basis, molecule=mol)
-    E_total = projects.scf.E_total
-    assert np.allclose(psi4_energy, E_total)
+    psi4_basis_scf = "SCF/" + projects.scf.basis
+    psi4_energy_scf = psi4.energy(psi4_basis_scf, molecule=projects.scf.mol)
+    E_total_scf = projects.scf.E_total
+    assert np.allclose(psi4_energy_scf, E_total_scf)
+
+
+#def test_diis():
+#    psi4.set_options({"scf_type": "pk"})
+#    psi4_basis_diis = "SCF/" + projects.diis.basis
+#    psi4_energy_diis = psi4.energy(psi4_basis_diis, molecule=projects.diis.mol)
+#    E_total = projects.diis.E_total
+	#assert np.allclose(psi4_energy_diis, E_total_diis)
+	#assert # Something about number of iterations
