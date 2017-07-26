@@ -1,6 +1,12 @@
 [![Build Status](https://travis-ci.org/MolSSI-SSS/QM_2017_SSS_Team8.svg?branch=master)](https://travis-ci.org/MolSSI-SSS/QM_2017_SSS_Team8)
 # QM_Team8
 
+Group Members:
+- Jun Zhang (Team Leader)
+- Asim Alenaizan
+- Vibin Abraham
+- Dakota Folmsbee
+
 QM_2017_SSS_Team8's repository for the collaborative projects.
 
 These projects are:
