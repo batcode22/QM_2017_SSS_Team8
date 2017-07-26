@@ -1,5 +1,5 @@
 """
-test for math
+test for scf
 """
 
 import projects
@@ -20,5 +20,3 @@ def test_scf():
     psi4_energy = psi4.energy(psi4_basis, molecule=mol)
     E_total = projects.scf.E_total
     assert np.allclose(psi4_energy, E_total)
-	# assert True
-    # assert projects.scf.diag(2, 5) == 7
