@@ -1,4 +1,4 @@
 """
 Test SCF.py
 """
-from * import SCF
+from . import scf
