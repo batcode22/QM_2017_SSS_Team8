@@ -20,7 +20,8 @@ damp_value = 0.20
 damp_start = 5
 
 # Build a basis
-bas = psi4.core.BasisSet.build(mol, target="aug-cc-pVDZ")
+basis = 'aug-cc-pvdz'
+bas = psi4.core.BasisSet.build(mol, target=basis)
 bas.print_out()
 
 # Build a MintsHelper
