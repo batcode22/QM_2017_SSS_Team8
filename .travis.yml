@@ -32,7 +32,10 @@ before_script:
  - python -V
 
 script:
+ - pip install -e .
+ - py.test -v
  - tests/test.py
+
 
 notifications:
  email: false
