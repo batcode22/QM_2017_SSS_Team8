@@ -1,3 +1,4 @@
+
 import numpy as np
 import psi4
 
@@ -98,17 +99,12 @@ O
 H 1 1.1
 H 1 1.1 2 104
 """
-
 basis = 'sto-3g'
-
 H, A, g, E_nuc, S = setup(geom, basis)
-
 eps, C = diag(H, A)
 Cocc = C[:, :nel]
 D = Cocc @ Cocc.T
-
 E_total = scf(g, D, E_nuc, S)
-
 mol = psi4.geometry(geom)
 psi4.set_output_file("output.dat")
 psi4.set_options({"scf_type": "pk"})
