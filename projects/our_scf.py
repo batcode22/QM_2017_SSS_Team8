@@ -91,7 +91,6 @@ def scf(g,
     return E_total
 
 
-'''
 #test
 geom = """
 O
@@ -101,7 +100,7 @@ H 1 1.1 2 104
 
 basis = 'sto-3g'
 
-H, A, g, E_nuc, S = setup(geom, basis)
+(H, A, g, E_nuc, S) = setup(geom, basis)
 
 eps, C = diag(H, A)
 Cocc = C[:, :nel]
@@ -114,4 +113,3 @@ psi4.set_output_file("output.dat")
 psi4.set_options({"scf_type": "pk"})
 psi4_energy = psi4.energy("SCF/sto-3g", molecule=mol)
 print("Energy matches Psi4 %s" % np.allclose(psi4_energy, E_total))
-'''
