@@ -27,6 +27,13 @@ H 1 0.9
 basis1 = 'sto-3g'
 basis2 = 'aug-cc-pVDZ'
 
+def test_scf():
+    psi4.set_options({"scf_type": "pk"})
+    psi4_basis_scf = "SCF/" + projects.scf.basis
+    psi4_energy_scf = psi4.energy(psi4_basis_scf, molecule=projects.scf.mol)
+    E_total_scf = projects.scf.E_total
+    assert np.allclose(psi4_energy_scf, E_total_scf)
+
 def test_our_scf():
 
     # Case 1 test w/ H2O and basis1
