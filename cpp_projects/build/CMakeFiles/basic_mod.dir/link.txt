@@ -1,1 +1,0 @@
-/home/alenaizan/anaconda3/envs/sss/bin/c++  -fPIC   -shared  -o basic_mod.cpython-35m-x86_64-linux-gnu.so CMakeFiles/basic_mod.dir/basic_mod.cpp.o 

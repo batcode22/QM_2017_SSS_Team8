@@ -1,3 +1,0 @@
-/home/alenaizan/molssi/py_cpp_bind/build/CMakeFiles/edit_cache.dir
-/home/alenaizan/molssi/py_cpp_bind/build/CMakeFiles/rebuild_cache.dir
-/home/alenaizan/molssi/py_cpp_bind/build/CMakeFiles/basic_mod.dir
