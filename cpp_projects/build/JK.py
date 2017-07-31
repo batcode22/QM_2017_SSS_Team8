@@ -1,6 +1,9 @@
 import numpy as np
 import basic_mod as bm
 import psi4
+import time
+
+start_time = time.time()
 
 # Make sure we get the same random array
 np.random.seed(0)
@@ -34,4 +37,6 @@ K = bm.k_df(I, D)
 # Make sure your implementation is correct
 print("J is correct: %s" % np.allclose(J, J_ref))
 print("K is correct: %s" % np.allclose(K, K_ref))
+
+print("--- %s seconds ---" % (time.time() - start_time))
 
