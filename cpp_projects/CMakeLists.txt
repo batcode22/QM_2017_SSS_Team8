@@ -14,6 +14,18 @@ find_package(pybind11 CONFIG REQUIRED
              PATHS $ENV{CONDA_PREFIX}
              NO_DEFAULT_PATH)
 message(STATUS "Found pybind11: ${pybind11_CONFIG}")
+
+#Write cmake flags
+OPTION (USE_OpenMP "Use OpenMP" ON)
+IF(USE_OpenMP)
+  FIND_PACKAGE(OpenMP)
+  IF(OPENMP_FOUND)
+    SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  ENDIF()
+ENDIF()
+
 # Creates a python module named "module_name"
 pybind11_add_module(basic_mod MODULE basic_mod.cpp)
 pybind11_add_module(jkcomp MODULE jkcomp.cpp)
+pybind11_add_module(jkcomp_parallel MODULE jkcomp_parallel.cpp)
