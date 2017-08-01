@@ -1,16 +1,19 @@
 import numpy as np
 import psi4
 
-nel = 5
 
-
-def setup(geom, basis):
+def jk(geom, basis, nel):
     mol = psi4.geometry(geom)
     mol.update_geometry()
     mol.print_out()
 
     bas = psi4.core.BasisSet.build(mol, target=basis)
-    bas.print_out()
+
+    # Build JKFIT basis
+    aux = psi4.core.BasisSet.build(mol, fitrole="JKFIT", other=basis)
+
+    # Zero basis set
+    zero_bas = psi4.core.BasisSet.zero_ao_basis_set()
 
     mints = psi4.core.MintsHelper(bas)
     nbf = mints.nbf()
@@ -31,87 +34,48 @@ def setup(geom, basis):
     A.power(-0.5, 1.e-14)
     A = np.array(A)
 
-    return H, A, g, E_nuc, S, mol
+    def diag(F, A):
+        Fp = A.T @ F @ A
+        eps, Cp = np.linalg.eigh(Fp)
+        C = A @ Cp
+        return eps, C
 
+    eps, C = diag(H, A)
+    Cocc = C[:, :nel]
+    D = Cocc @ Cocc.T
 
-def diag(F, A):
-    Fp = A.T @ F @ A
-    eps, Cp = np.linalg.eigh(Fp)
-    C = A @ Cp
-    return eps, C
+    # Build (P|pq) raw ERIs (1, Naux, nbf, nbf)
+    Qls_tilde = mints.ao_eri(zero_bas, aux, bas, bas)
+    Qls_tilde = np.squeeze(Qls_tilde)
 
-def jk_density_fitting(mol, D, H, basis='aug-cc-pvdz', e_conv = 1e-10, d_conv = 1e-10):
-
-    # Psi4 options
-    psi4.set_options({'basis': basis,
-                      'scf_type': 'df',
-                      'e_convergence': e_conv,
-                      'd_convergence': d_conv})
-
-    wfn = psi4.core.Wavefunction.build(mol, psi4.core.get_global_option('basis'))
-
-    # Build auxiliary basis set
-    aux = psi4.core.BasisSet.build(mol, "DF_BASIS_SCF", "", "JKFIT", basis)
-
-    # ==> Build Density-Fitted Integrals <==
-    # Get orbital basis & build zero basis
-    orb = wfn.basisset()
-    zero_bas = psi4.core.BasisSet.zero_ao_basis_set()
-
-    # Build instance of MintsHelper
-    mints = psi4.core.MintsHelper(orb)
-
-    # Build (P|pq) raw 3-index ERIs, dimension (1, Naux, nbf, nbf)
-    Ppq = mints.ao_eri(zero_bas, aux, orb, orb)
-
-    # Build & invert Coulomb metric, dimension (1, Naux, 1, Naux)
+    # Build and invert Coulomb metric (1, Naux, 1, Naux)
     metric = mints.ao_eri(zero_bas, aux, zero_bas, aux)
-    metric.power(-0.5, 1.e-14)
-
-    # Remove excess dimensions of Ppq, & metric
-    Ppq = np.squeeze(Ppq)
+    metric.power(-0.5, 1e-14)
     metric = np.squeeze(metric)
 
-    # Build the Qso object
-    Qpq = np.einsum('QP,Ppq->Qpq', metric, Ppq)
+    # Get (P|ls)
+    pls = np.einsum("qls,pq->pls", Qls_tilde, metric)
 
-    # ==> Compute SCF Wavefunction, Density Matrix, & 1-electron H <==
- #   scf_e, scf_wfn = psi4.energy('scf', return_wfn=True)
-
-    # Two-step build of J with Qpq and D
-    X_Q = np.einsum('Qpq,pq->Q', Qpq, D)
-    J = np.einsum('Qpq,Q->pq', Qpq, X_Q)
-
-    # Two-step build of K with Qpq and D
-    Z_Qqr = np.einsum('Qrs,sq->Qrq', Qpq, D)
-    K = np.einsum('Qpq,Qrq->pr', Qpq, Z_Qqr)
-
-    return J, K
-
-def scf(A,
-        H,
-        g,
-        D,
-        E_nuc,
-        S,
-		mol,
-        max_iter=25,
-        damp_value=0.20,
-        damp_start=5,
-        e_conv=1.e-6,
-        d_conv=1.e-6, df=False):
+    max_iter = 25
+    damp_value = 0.20
+    damp_start = 5
+    e_conv = 1.e-6
+    d_conv = 1.e-6
     E_old = 0.0
+    F_new = None
 
     for iteration in range(max_iter):
+        # Coulomb matrix
+        chi = np.einsum("pls,ls->p", pls, D)
+        J = np.einsum("mnp,p->mn", pls.transpose(1,2,0), chi)
 
-        if df==True:
-            J, K = jk_density_fitting(mol, D, H)
-
-        else:
-            J = np.einsum("pqrs,rs->pq", g, D)
-            K = np.einsum("prqs,rs->pq", g, D)
+        # Exchange matrix
+        ex1 = np.einsum("qms,sp->qmp", pls, Cocc)
+        ex2 = np.einsum("qnl,lp->qnp", pls, Cocc)
+        K = np.einsum("qmp,qnp->mn", ex1, ex2)
 
         F_new = H + 2.0 * J - K
+
         # conditional iteration > start_damp
         if iteration >= damp_start:
             F = damp_value * F_old + (1.0 - damp_value) * F_new
@@ -119,10 +83,9 @@ def scf(A,
             F = F_new
 
         F_old = F_new
-        # F = (damp_value) Fold + (??) Fnew
 
         # Build the AO gradient
-        grad = F @ D @ S - S @ D @ F
+        grad = A.T @ (F @ D @ S - S @ D @ F) @ A
 
         grad_rms = np.mean(grad**2)**0.5
 
@@ -144,24 +107,3 @@ def scf(A,
         D = Cocc @ Cocc.T
 
     return E_total
-
-
-'''
-geom = """
-O
-H 1 0.96
-H 1 0.96 2 104.5
-symmetry c1
-"""
-basis = 'aug-cc-pVDZ'
-
-H, A, g, E_nuc, S, mol = setup(geom, basis)
-eps, C = diag(H, A)
-Cocc = C[:, :nel]
-D = Cocc @ Cocc.T
-E_total = scf(A, H, g, D, E_nuc, S, mol, df=True)
-psi4.set_options({"scf_type": "df"})
-psi4_energy = psi4.energy("SCF/" + basis, molecule=mol)
-if np.allclose(psi4_energy, E_total):
-	print("It works!")
-'''
