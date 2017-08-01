@@ -7,6 +7,7 @@ from projects import our_scf
 from projects import easy_scf
 from projects import diis
 from projects import easy_diis
+from projects import our_scf_jk
 import numpy as np
 import psi4
 import pytest
@@ -69,7 +70,7 @@ def test_our_scf():
     psi4_energy = psi4.energy("SCF/" + basis1, molecule=mol_h2_b1)
     assert np.allclose(psi4_energy, E_total3)
 
-def test_easy_diis_scf():
+def test_easy_scf():
 
     # Case 1 test w/ H2O and basis1
     E_total = easy_scf.scf(geom_h2o, basis1, nel)
@@ -148,4 +149,27 @@ def test_easy_diis():
     mol_h2_b1 = psi4.geometry(geom_h2)
     psi4.set_options({"scf_type": "pk"})
     psi4_energy = psi4.energy("SCF/" + basis1, molecule=mol_h2_b1)
+    assert np.allclose(psi4_energy, E_total3)
+
+def test_our_scf_jk():
+
+    # Case 1 w/ H2O and basis1
+    E_total = our_scf_jk.jk(geom_h2o, basis1, nel)
+    mol_h2o_b1 = psi4.geometry(geom_h2o)
+    psi4.set_options({"scf_type": "pk"})
+    psi4_energy = psi4.energy("SCF/" + basis1, molecule=mol_h2o_b1)
+    assert np.allclose(psi4_energy, E_total)
+
+    # Case 2 test w/ H2O and basis2
+    E_total2 = our_scf_jk.jk(geom_h2o, basis2, nel)
+    mol_h2o_b2 = psi4.geometry(geom_h2o)
+    psi4.set_options({"scf_type": "pk"})
+    psi4_energy = psi4.energy("SCF/" + basis2, molecule=mol_h2o_b2)
+    assert np.allclose(psi4_energy, E_total2)
+
+    # Case 3 test w/ H2 and basis2
+    E_total3 = our_scf_jk.jk(geom_h2, basis2, nel_h2)
+    mol_h2_b1 = psi4.geometry(geom_h2)
+    psi4.set_options({"scf_type": "pk"})
+    psi4_energy = psi4.energy("SCF/" + basis2, molecule=mol_h2_b1)
     assert np.allclose(psi4_energy, E_total3)
