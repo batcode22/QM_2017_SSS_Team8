@@ -16,3 +16,4 @@ find_package(pybind11 CONFIG REQUIRED
 message(STATUS "Found pybind11: ${pybind11_CONFIG}")
 # Creates a python module named "module_name"
 pybind11_add_module(basic_mod MODULE basic_mod.cpp)
+pybind11_add_module(jkcomp MODULE jkcomp.cpp)

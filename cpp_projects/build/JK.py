@@ -2,7 +2,9 @@ import numpy as np
 import basic_mod as bm
 import psi4
 import time
+import jk
 
+print(bm.factorial(5))
 
 # Make sure we get the same random array
 np.random.seed(0)
@@ -15,7 +17,7 @@ H 1 1.1 2 104
 """)
 
 # Build a ERI tensor
-basis = psi4.core.BasisSet.build(mol, target="cc-pvqz")
+basis = psi4.core.BasisSet.build(mol, target="cc-pvdz")
 mints = psi4.core.MintsHelper(basis)
 I = np.array(mints.ao_eri())
 
@@ -30,12 +32,9 @@ K_ref = np.einsum("prqs,rs->pq", I, D)
 
 # Your implementation
 start_time = time.time()
-J,K = bm.form_JK(I, D)
+J,K = jk.form_JK(I, D)
 print("--- %s seconds ---" % (time.time() - start_time))
 
 # Make sure your implementation is correct
 print("J is correct: %s" % np.allclose(J, J_ref))
 print("K is correct: %s" % np.allclose(K, K_ref))
-
-
-print(K)
