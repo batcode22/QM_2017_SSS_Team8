@@ -81,7 +81,7 @@ std::vector<py::array> form_JK(py::array_t<double> I, py::array_t<double> D)
 
 PYBIND11_PLUGIN(jkcomp)
 {
-	py::module m("jkcomp", "Ben's basic module");
+	py::module m("jkcomp", "computes J and K");
 
 	m.def("form_JK", &form_JK, "Computes J and K");
 
